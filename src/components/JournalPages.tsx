@@ -5,7 +5,6 @@ import {
   Github,
   Linkedin,
   ExternalLink,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
   GraduationCap,
