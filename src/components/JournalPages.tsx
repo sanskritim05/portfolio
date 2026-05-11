@@ -1035,10 +1035,9 @@ function MetricCard({ value, label, delay = 0 }: { value: string; label: string;
 
   useEffect(() => {
     let frame: number | undefined;
-    let timeout: number | undefined;
     const duration = 1250;
 
-    timeout = window.setTimeout(() => {
+    const timeout = window.setTimeout(() => {
       const start = performance.now();
 
       const tick = (now: number) => {
@@ -1145,18 +1144,25 @@ export function JournalPages() {
 
       if (event.key === "ArrowRight") {
         event.preventDefault();
-        next();
+        setDir(1);
+        setSpread((current) =>
+          current === totalSpreads ? 0 : Math.min(current + 1, totalSpreads),
+        );
       }
 
       if (event.key === "ArrowLeft") {
         event.preventDefault();
-        prev();
+        setSpread((current) => {
+          if (current === -1 || current === totalSpreads) return current;
+          setDir(-1);
+          return Math.max(current - 1, -1);
+        });
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [spread, totalSpreads]);
+  }, [totalSpreads]);
 
   const leftIdx = spread * 2;
   const rightIdx = leftIdx + 1;
