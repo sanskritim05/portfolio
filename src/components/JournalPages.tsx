@@ -382,8 +382,6 @@ const buildPages = (
         <ul className="space-y-1 font-serif-body text-sm text-foreground/85">
           <li>· AWS AI &amp; ML Scholarship</li>
           <li>· Dean's List at Rutgers</li>
-          <li>· National Honor Society</li>
-          <li>· Spanish Honor Society</li>
         </ul>
       </div>
     </div>
