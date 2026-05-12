@@ -63,28 +63,28 @@
 
 :root {
   --radius: 0.625rem;
-  /* Soft baby blue palette */
-  --background: oklch(0.97 0.025 235);
-  --foreground: oklch(0.32 0.06 250);
+  /* Soft blue page with calm, high-contrast ink */
+  --background: oklch(0.985 0.014 235);
+  --foreground: oklch(0.31 0.03 210);
   --card: oklch(0.985 0.018 235);
-  --card-foreground: oklch(0.32 0.06 250);
+  --card-foreground: oklch(0.31 0.03 210);
   --popover: oklch(0.985 0.018 235);
-  --popover-foreground: oklch(0.32 0.06 250);
-  --primary: oklch(0.62 0.11 240);
+  --popover-foreground: oklch(0.31 0.03 210);
+  --primary: oklch(0.32 0.08 250);
   --primary-foreground: oklch(0.99 0.01 235);
-  --secondary: oklch(0.93 0.04 235);
-  --secondary-foreground: oklch(0.32 0.06 250);
-  --muted: oklch(0.94 0.03 235);
-  --muted-foreground: oklch(0.5 0.05 250);
-  --accent: oklch(0.85 0.07 235);
-  --accent-foreground: oklch(0.28 0.06 250);
+  --secondary: oklch(0.965 0.018 235);
+  --secondary-foreground: oklch(0.31 0.03 210);
+  --muted: oklch(0.97 0.016 235);
+  --muted-foreground: oklch(0.46 0.025 210);
+  --accent: oklch(0.91 0.035 40);
+  --accent-foreground: oklch(0.27 0.055 250);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.88 0.04 235);
-  --input: oklch(0.9 0.03 235);
-  --ring: oklch(0.7 0.09 235);
-  --paper: oklch(0.985 0.015 230);
-  --ink: oklch(0.32 0.06 250);
+  --border: oklch(0.91 0.026 235);
+  --input: oklch(0.93 0.02 235);
+  --ring: oklch(0.45 0.08 250);
+  --paper: oklch(0.992 0.009 230);
+  --ink: oklch(0.31 0.03 210);
   --book-cover: oklch(0.7 0.09 235);
   --book-cover-dark: oklch(0.55 0.1 240);
   --book-spine: oklch(0.45 0.09 245);
@@ -150,8 +150,8 @@
     color: var(--color-foreground);
     font-family: "Lora", "Georgia", serif;
     background-image:
-      radial-gradient(ellipse at 20% 10%, oklch(0.92 0.05 230) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 90%, oklch(0.9 0.06 245) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 10%, oklch(0.965 0.025 230) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, oklch(0.955 0.03 245) 0%, transparent 50%);
     background-attachment: fixed;
     overflow-x: hidden;
   }
@@ -160,10 +160,13 @@
     font-family: "Playfair Display", "Georgia", serif;
   }
   .font-script {
-    font-family: "Caveat", "Dancing Script", cursive;
+    font-family: "Lora", "Georgia", serif;
+    font-style: italic;
+    font-weight: 400;
   }
   .font-serif-body {
     font-family: "Lora", "Georgia", serif;
+    font-weight: 400;
   }
 
   /* Journal text sits on the ruled lines (32px rhythm) */
@@ -181,8 +184,8 @@
   .paper-texture {
     background-color: var(--paper);
     background-image:
-      radial-gradient(ellipse at top left, oklch(0.95 0.03 235) 0%, transparent 70%),
-      radial-gradient(ellipse at bottom right, oklch(0.92 0.04 240) 0%, transparent 70%);
+      radial-gradient(ellipse at top left, oklch(0.975 0.016 235) 0%, transparent 70%),
+      radial-gradient(ellipse at bottom right, oklch(0.965 0.02 240) 0%, transparent 70%);
   }
 
   .book-page {

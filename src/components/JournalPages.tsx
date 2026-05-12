@@ -116,7 +116,7 @@ const planeLayout = [
   { top: "0px", left: "5%", rotate: -10, flip: false },
   { top: "118px", left: "56%", rotate: 8, flip: true },
   { top: "265px", left: "8%", rotate: 16, flip: false },
-  { top: "400px", left: "58%", rotate: -8, flip: false },
+  { top: "345px", left: "56%", rotate: -8, flip: false },
 ];
 
 const planeFlyIn = [
@@ -393,8 +393,7 @@ const buildPages = (
       <ChapterHeader num="viii" title="Say hello" sub="let's talk" />
       <div className="journal-lines text-foreground/85">
         <p>
-          I'm always open to thoughtful software, AI, data, product, and research collaborations. If
-          you'd like to build something together, compare ideas, or just say hi, I'd love to hear
+          If you'd like to build something together, compare ideas, or just say hi, I'd love to hear
           from you.
         </p>
       </div>
