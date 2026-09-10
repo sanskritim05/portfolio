@@ -5,10 +5,7 @@ import {
   createRootRouteWithContext,
   useRouter,
   HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
-
-import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
@@ -58,12 +55,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Try again
           </button>
-          <a
-            href="/"
+          <Link
+            to="/"
             className="inline-flex items-center justify-center rounded-md border border-[oklch(1_0_0/0.18)] bg-[oklch(0.235_0.048_264)] px-4 py-2 text-sm font-medium text-[oklch(0.97_0.012_235)] transition-colors hover:bg-[oklch(0.32_0.045_264)]"
           >
             Go home
-          </a>
+          </Link>
         </div>
       </div>
     </div>
@@ -76,53 +73,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Sanskriti Malakar" },
-      { name: "description", content: "Sanskriti Malakar — AI/ML & full-stack engineering portfolio" },
+      {
+        name: "description",
+        content:
+          "Sanskriti Malakar — AI/ML & full-stack engineering portfolio",
+      },
       { name: "author", content: "Sanskriti Malakar" },
       { property: "og:title", content: "Sanskriti Malakar" },
-      { property: "og:description", content: "Sanskriti Malakar — AI/ML & full-stack engineering portfolio" },
+      {
+        property: "og:description",
+        content:
+          "Sanskriti Malakar — AI/ML & full-stack engineering portfolio",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@SanskritiMalakar" },
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Parisienne&display=swap",
-      },
-    ],
+    links: [{ rel: "icon", type: "image/png", href: `${import.meta.env.BASE_URL}favicon.png` }],
   }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
+      <HeadContent />
       <Outlet />
     </QueryClientProvider>
   );
