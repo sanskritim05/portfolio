@@ -1,5 +1,5 @@
 {
-  "name": "portfolio",
+  "name": "my-journal-folio",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -12,9 +12,15 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@cloudflare/vite-plugin": "^1.25.5",
     "@tailwindcss/vite": "^4.2.1",
+    "@tanstack/react-query": "^5.83.0",
+    "@tanstack/react-router": "^1.168.25",
+    "@tanstack/react-start": "^1.167.50",
+    "@tanstack/router-plugin": "^1.167.28",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.575.0",
+    "nitro": "3.0.260603-beta",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.2.1",
