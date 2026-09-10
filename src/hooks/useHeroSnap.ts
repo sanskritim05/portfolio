@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 
-const easeInOutCubic = (t: number) =>
-  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+/** Soft ease — settles gently so the work title doesn't feel abrupt. */
+const easeOutQuint = (t: number) => 1 - Math.pow(1 - t, 5);
+
+/** Keep a little air above "My Work" so script letterforms aren't clipped. */
+const TOP_GAP = 48;
 
 /**
  * Snap scrolling between the hero frame and the work section: one gesture in
@@ -13,16 +16,19 @@ export function useHeroSnap(anchorId = "my-work") {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const root = document.documentElement;
     let animating = false;
+    let raf = 0;
 
     const boundary = () => {
       const el = document.getElementById(anchorId);
       if (!el) return 0;
-      return el.getBoundingClientRect().top + window.scrollY;
+      const y = el.getBoundingClientRect().top + window.scrollY - TOP_GAP;
+      return Math.max(0, y);
     };
 
-    const snapTo = (targetY: number, duration = 900) => {
+    const snapTo = (targetY: number, duration = 1100) => {
+      const clamped = Math.max(0, targetY);
       if (reduce) {
-        window.scrollTo(0, targetY);
+        window.scrollTo(0, clamped);
         return;
       }
       if (animating) return;
@@ -30,19 +36,19 @@ export function useHeroSnap(anchorId = "my-work") {
       const prev = root.style.scrollBehavior;
       root.style.scrollBehavior = "auto";
       const startY = window.scrollY;
-      const dist = targetY - startY;
+      const dist = clamped - startY;
       let start: number | null = null;
       const step = (ts: number) => {
         if (start === null) start = ts;
         const t = Math.min(1, (ts - start) / duration);
-        window.scrollTo(0, startY + dist * easeInOutCubic(t));
-        if (t < 1) requestAnimationFrame(step);
+        window.scrollTo(0, startY + dist * easeOutQuint(t));
+        if (t < 1) raf = requestAnimationFrame(step);
         else {
           root.style.scrollBehavior = prev;
           animating = false;
         }
       };
-      requestAnimationFrame(step);
+      raf = requestAnimationFrame(step);
     };
 
     const onWorkLink = (e: Event) => {
@@ -59,7 +65,7 @@ export function useHeroSnap(anchorId = "my-work") {
       if (window.location.hash !== `#${anchorId}`) return;
       // Wait a frame so layout is ready after route navigation
       requestAnimationFrame(() => {
-        snapTo(boundary(), reduce ? 0 : 700);
+        snapTo(boundary(), reduce ? 0 : 900);
       });
     };
     scrollToWorkIfHashed();
@@ -76,10 +82,10 @@ export function useHeroSnap(anchorId = "my-work") {
       if (y < wt - 1) {
         e.preventDefault();
         if (e.deltaY > 8) snapTo(wt);
-        else if (e.deltaY < -8) snapTo(0, 700);
-      } else if (y <= wt + 2 && e.deltaY < -8) {
+        else if (e.deltaY < -8) snapTo(0, 900);
+      } else if (y <= wt + 8 && e.deltaY < -8) {
         e.preventDefault();
-        snapTo(0);
+        snapTo(0, 900);
       }
     };
 
@@ -102,12 +108,12 @@ export function useHeroSnap(anchorId = "my-work") {
           snapTo(wt);
           touchY = null;
         } else if (dy < -12) {
-          snapTo(0, 700);
+          snapTo(0, 900);
           touchY = null;
         }
-      } else if (y <= wt + 2 && dy < -12) {
+      } else if (y <= wt + 8 && dy < -12) {
         e.preventDefault();
-        snapTo(0);
+        snapTo(0, 900);
         touchY = null;
       }
     };
@@ -121,10 +127,10 @@ export function useHeroSnap(anchorId = "my-work") {
       const y = window.scrollY;
       if (y < wt - 1) {
         e.preventDefault();
-        snapTo(down ? wt : 0, down ? 900 : 700);
-      } else if (y <= wt + 2 && up) {
+        snapTo(down ? wt : 0, 1100);
+      } else if (y <= wt + 8 && up) {
         e.preventDefault();
-        snapTo(0);
+        snapTo(0, 900);
       }
     };
 
@@ -136,6 +142,7 @@ export function useHeroSnap(anchorId = "my-work") {
     }
 
     return () => {
+      cancelAnimationFrame(raf);
       document.removeEventListener("click", onWorkLink);
       window.removeEventListener("hashchange", scrollToWorkIfHashed);
       window.removeEventListener("wheel", onWheel);

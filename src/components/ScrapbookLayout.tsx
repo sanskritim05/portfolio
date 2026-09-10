@@ -19,7 +19,7 @@ export function ScrapbookLayout({
 
   return (
     <div
-      className={`relative min-h-screen overflow-hidden ${
+      className={`relative min-h-screen overflow-x-hidden ${
         navy ? "bg-[oklch(0.235_0.048_264)] text-[oklch(0.97_0.012_235)]" : "page-paper"
       }`}
     >

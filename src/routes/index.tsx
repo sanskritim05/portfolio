@@ -138,13 +138,15 @@ function Home() {
         </section>
       }
     >
-      <section className="px-6 md:px-12" aria-labelledby="work-heading">
-        <div id="my-work" aria-hidden className="h-0" />
+      <section
+        className="px-6 pb-4 pt-10 md:px-12 md:pt-14"
+        aria-labelledby="work-heading"
+      >
         <h2
-          id="work-heading"
-          className="font-script text-5xl text-[oklch(0.97_0.012_235)/0.85] md:text-6xl"
+          id="my-work"
+          className="font-script text-5xl leading-[1.35] text-[oklch(0.97_0.012_235)/0.85] md:text-6xl"
         >
-          My Work
+          <span id="work-heading">My Work</span>
         </h2>
 
         <div className="mt-8 grid gap-10 md:grid-cols-2">

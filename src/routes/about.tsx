@@ -58,8 +58,10 @@ function Block({ title, children, action }: { title: string; children: React.Rea
       transition={{ duration: 0.7 }}
       className="mt-16"
     >
-      <div className="rule-heading">
-        <h2 className="font-script text-4xl text-[oklch(0.24_0.05_264)]">{title}</h2>
+      <div className="rule-heading pl-5 md:pl-8">
+        <h2 className="font-script text-4xl leading-[1.35] text-[oklch(0.24_0.05_264)]">
+          {title}
+        </h2>
         {action}
       </div>
       <div className="mt-8">{children}</div>
@@ -119,7 +121,7 @@ function About() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           >
-            <h1 className="font-script text-4xl text-[oklch(0.24_0.05_264)] md:text-5xl">
+            <h1 className="pl-5 font-script text-4xl leading-[1.35] text-[oklch(0.24_0.05_264)] md:pl-8 md:text-5xl">
               About Me
             </h1>
             <p className="mt-6 font-body text-lg leading-relaxed text-[oklch(0.28_0.045_264)]">
