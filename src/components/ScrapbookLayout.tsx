@@ -28,7 +28,7 @@ export function ScrapbookLayout({
       {hero}
 
       {!hideNav && (
-        <div className="relative z-20 px-6 pt-6 md:px-12">
+        <div className="relative z-20 pl-10 pr-6 pt-6 md:pl-16 md:pr-12">
           <Link
             to="/"
             className="lift-stamp inline-flex items-center gap-2 font-script text-2xl text-[oklch(0.24_0.05_264)] hover:underline"
