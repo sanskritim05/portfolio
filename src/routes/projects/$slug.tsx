@@ -203,6 +203,7 @@ function ProjectPage() {
         <div className="mt-16 border-t border-[oklch(0.24_0.05_264/0.18)] pt-8">
           <Link
             to="/"
+            hash="my-work"
             className="inline-flex items-center gap-2 font-script text-3xl text-[oklch(0.28_0.05_264)] hover:underline"
           >
             <ArrowLeft className="h-4 w-4" /> see the rest of my work

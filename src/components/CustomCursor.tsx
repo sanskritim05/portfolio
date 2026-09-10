@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 
 /**
- * Custom cursor: a dot that inverts against light/dark backgrounds and swaps
- * to a navy pill label ("VIEW PROJECT" / "COMING SOON") over project cards.
+ * Custom cursor: a dot that inverts against light/dark backgrounds, with an
+ * optional navy pill label when hovering elements marked data-cursor-label.
  */
 export function CustomCursor() {
   useEffect(() => {

@@ -44,7 +44,6 @@ function ProjectCard({
       <Link
         to="/projects/$slug"
         params={{ slug: p.slug }}
-        data-cursor-label="VIEW PROJECT"
         className="lift-card block h-full rounded-[28px] bg-[oklch(0.99_0.004_235)] p-6"
         style={{ boxShadow: "0 30px 60px -35px oklch(0.1 0.04 264 / 0.9)" }}
       >
