@@ -528,13 +528,30 @@ export const education = [
   },
 ];
 
-export const publication = {
-  title:
-    "From One Big Prompt to a Production Pipeline: Multi-Agent AI with Strands Agents",
-  date: "April 2026",
-  body: "A technical article on building a multi-agent LLM pipeline with more reliability than a single-prompt system, using specialist agents, structured routing, and production-minded checks.",
-  link: "https://medium.com/@sanskritimalakar/from-one-big-prompt-to-a-production-pipeline-multi-agent-ai-with-strands-agents-9bbf7c31b056",
+export type Publication = {
+  title: string;
+  date: string;
+  body: string;
+  link?: string;
+  linkLabel?: string;
 };
+
+export const publications: Publication[] = [
+  {
+    title:
+      "Cooperative Minds, Human by Design: Multi-Agent Systems & Cooperative AI for Human Wellbeing",
+    date: "October 2026 · Workshop at IEEE ISAIA 2026, Montclair, NJ",
+    body: "Co-presented a workshop walking through building multi-agent systems with Strands Agents and Ollama, from a single agent to a full crisis-response pipeline. The focus was human-in-the-loop design: agents handle the routine, while humans review, step in during a crisis, and co-author consequential outputs.",
+  },
+  {
+    title:
+      "From One Big Prompt to a Production Pipeline: Multi-Agent AI with Strands Agents",
+    date: "April 2026",
+    body: "A technical article on building a multi-agent LLM pipeline with more reliability than a single-prompt system, using specialist agents, structured routing, and production-minded checks.",
+    link: "https://medium.com/@sanskritimalakar/from-one-big-prompt-to-a-production-pipeline-multi-agent-ai-with-strands-agents-9bbf7c31b056",
+    linkLabel: "Read the article",
+  },
+];
 
 export const certificates = [
   {

@@ -7,7 +7,7 @@ import { ScrapbookLayout } from "@/components/ScrapbookLayout";
 import {
   experience,
   education,
-  publication,
+  publications,
   certificates,
 } from "@/lib/portfolio";
 import foodThai from "@/assets/food-thai.jpg";
@@ -39,12 +39,12 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "Sanskriti Malakar | AI/ML & full-stack engineering portfolio. Experience, publication and certificates.",
+          "Sanskriti Malakar | AI/ML & full-stack engineering portfolio. Experience, publications, workshops and certificates.",
       },
       { property: "og:title", content: "About Sanskriti Malakar" },
       {
         property: "og:description",
-        content: "Experience, education, publication and certificates.",
+        content: "Experience, education, publications, workshops and certificates.",
       },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary" },
@@ -186,27 +186,31 @@ function About() {
           </div>
         </Block>
 
-        <Block title="publication">
+        <Block title="publication and workshops">
           <div className="grid gap-8 md:grid-cols-2">
-            <article className="rounded-2xl bg-[oklch(0.95_0.008_235)] p-5">
-              <h3 className="font-display text-base font-semibold text-[oklch(0.24_0.05_264)]">
-                {publication.title}
-              </h3>
-              <p className="mt-2 font-body text-sm italic text-[oklch(0.4_0.04_264)]">
-                {publication.date}
-              </p>
-              <p className="mt-4 font-body text-sm leading-relaxed text-[oklch(0.3_0.045_264)]">
-                {publication.body}
-              </p>
-              <a
-                href={publication.link}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 inline-flex items-center gap-2 font-body text-sm text-[oklch(0.26_0.045_264)] hover:underline"
-              >
-                <ExternalLink className="h-4 w-4" /> Read the article
-              </a>
-            </article>
+            {publications.map((pub) => (
+              <article key={pub.title} className="rounded-2xl bg-[oklch(0.95_0.008_235)] p-5">
+                <h3 className="font-display text-base font-semibold text-[oklch(0.24_0.05_264)]">
+                  {pub.title}
+                </h3>
+                <p className="mt-2 font-body text-sm italic text-[oklch(0.4_0.04_264)]">
+                  {pub.date}
+                </p>
+                <p className="mt-4 font-body text-sm leading-relaxed text-[oklch(0.3_0.045_264)]">
+                  {pub.body}
+                </p>
+                {pub.link && (
+                  <a
+                    href={pub.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-4 inline-flex items-center gap-2 font-body text-sm text-[oklch(0.26_0.045_264)] hover:underline"
+                  >
+                    <ExternalLink className="h-4 w-4" /> {pub.linkLabel}
+                  </a>
+                )}
+              </article>
+            ))}
           </div>
         </Block>
 
