@@ -59,7 +59,8 @@ function Block({ title, children, action }: { title: string; children: React.Rea
       className="mt-16"
     >
       <div className="rule-heading">
-        <h2 className="font-script text-4xl leading-[1.4] text-[oklch(0.24_0.05_264)]">
+        {/* Padding keeps script swashes (e.g. the "p" lead-in) inside the box so they aren't clipped while animating */}
+        <h2 className="-ml-3 pl-3 font-script text-4xl leading-[1.4] text-[oklch(0.24_0.05_264)]">
           {title}
         </h2>
         {action}
