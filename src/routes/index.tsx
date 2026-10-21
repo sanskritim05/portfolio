@@ -1,5 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import { ScrapbookLayout } from "@/components/ScrapbookLayout";
 import { useHeroSnap } from "@/hooks/useHeroSnap";
 import { person, projects } from "@/lib/portfolio";
@@ -29,53 +37,99 @@ export const Route = createFileRoute("/")({
 function ProjectCard({
   p,
   delay,
+  tilt,
 }: {
   p: (typeof projects)[number];
   delay: number;
+  tilt: number;
 }) {
+  const reduceMotion = useReducedMotion();
+  // Pointer position over the card, normalised to -0.5..0.5 on each axis.
+  const px = useMotionValue(0);
+  const py = useMotionValue(0);
+  const spring = { stiffness: 180, damping: 18, mass: 0.6 };
+  const rotateX = useSpring(useTransform(py, [-0.5, 0.5], [7, -7]), spring);
+  const rotateY = useSpring(useTransform(px, [-0.5, 0.5], [-9, 9]), spring);
+  const glareX = useTransform(px, [-0.5, 0.5], ["0%", "100%"]);
+  const glareY = useTransform(py, [-0.5, 0.5], ["0%", "100%"]);
+  const glare = useMotionTemplate`radial-gradient(circle at ${glareX} ${glareY}, oklch(1 0 0 / 0.35) 0%, transparent 55%)`;
+
+  const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (reduceMotion || e.pointerType !== "mouse") return;
+    const r = e.currentTarget.getBoundingClientRect();
+    px.set((e.clientX - r.left) / r.width - 0.5);
+    py.set((e.clientY - r.top) / r.height - 0.5);
+  };
+  const onPointerLeave = () => {
+    px.set(0);
+    py.set(0);
+  };
+
   return (
     <motion.article
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 48, rotate: tilt, scale: 0.94 }}
+      whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.7, delay }}
-      className="group"
+      transition={{ type: "spring", stiffness: 70, damping: 14, delay }}
+      className="group h-full"
+      style={{ perspective: 1200 }}
     >
-      <Link
-        to="/projects/$slug"
-        params={{ slug: p.slug }}
-        className="lift-card block h-full rounded-[28px] bg-[oklch(0.99_0.004_235)] p-6"
-        style={{ boxShadow: "0 30px 60px -35px oklch(0.1 0.04 264 / 0.9)" }}
+      <motion.div
+        onPointerMove={onPointerMove}
+        onPointerLeave={onPointerLeave}
+        style={reduceMotion ? undefined : { rotateX, rotateY }}
+        whileHover={reduceMotion ? undefined : { y: -6 }}
+        whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="h-full [transform-style:preserve-3d]"
       >
-        <div
-          className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl"
-          style={{
-            backgroundColor: p.image ? "oklch(1 0 0)" : "oklch(0.92 0.008 264)",
-          }}
-          aria-hidden
+        <Link
+          to="/projects/$slug"
+          params={{ slug: p.slug }}
+          className="project-card relative block h-full overflow-hidden rounded-[28px] bg-[oklch(0.99_0.004_235)] p-6"
         >
-          {p.image ? (
-            <img
-              src={p.image}
-              alt={`${p.title} preview`}
-              className="absolute inset-0 h-full w-full object-contain object-center"
-            />
-          ) : null}
           <div
-            className="absolute inset-0"
+            className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl"
             style={{
-              background: `radial-gradient(circle at 70% 30%, ${p.accent} 0%, transparent 62%)`,
-              opacity: p.image ? 0.12 : 0.18,
+              backgroundColor: p.image ? "oklch(1 0 0)" : "oklch(0.92 0.008 264)",
             }}
-          />
-        </div>
-        <h3 className="mt-6 font-display text-xl font-semibold text-[oklch(0.24_0.05_264)]">
-          {p.title}
-        </h3>
-        <p className="mt-2 font-body text-sm italic leading-relaxed text-[oklch(0.32_0.04_264)]">
-          {p.blurb}
-        </p>
-      </Link>
+            aria-hidden
+          >
+            {p.image ? (
+              <img
+                src={p.image}
+                alt={`${p.title} preview`}
+                className="project-card__img absolute inset-0 h-full w-full object-contain object-center"
+              />
+            ) : null}
+            <div
+              className="project-card__accent absolute inset-0"
+              style={{
+                background: `radial-gradient(circle at 70% 30%, ${p.accent} 0%, transparent 62%)`,
+                opacity: p.image ? 0.12 : 0.18,
+              }}
+            />
+            <span className="project-card__shine" />
+          </div>
+          <h3 className="mt-6 font-display text-xl font-semibold text-[oklch(0.24_0.05_264)]">
+            <span className="project-card__title">{p.title}</span>
+          </h3>
+          <p className="mt-2 font-body text-sm italic leading-relaxed text-[oklch(0.32_0.04_264)]">
+            {p.blurb}
+          </p>
+          <span className="project-card__cta mt-4 inline-flex items-center gap-1.5 font-body text-sm font-medium text-[oklch(0.42_0.1_250)]">
+            View project
+            <ArrowRight className="project-card__arrow h-4 w-4" aria-hidden />
+          </span>
+          {!reduceMotion && (
+            <motion.span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-[28px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              style={{ background: glare }}
+            />
+          )}
+        </Link>
+      </motion.div>
     </motion.article>
   );
 }
@@ -150,14 +204,19 @@ function Home() {
 
         <div className="mt-8 grid gap-10 md:grid-cols-2">
           {grid.map((p, i) => (
-            <ProjectCard key={p.slug} p={p} delay={(i % 2) * 0.08} />
+            <ProjectCard
+              key={p.slug}
+              p={p}
+              delay={(i % 2) * 0.08}
+              tilt={i % 2 === 0 ? -2.5 : 2.5}
+            />
           ))}
         </div>
 
         {last && (
           <div className="mt-10 flex justify-center">
             <div className="w-full md:w-1/2">
-              <ProjectCard p={last} delay={0} />
+              <ProjectCard p={last} delay={0} tilt={-1.5} />
             </div>
           </div>
         )}
