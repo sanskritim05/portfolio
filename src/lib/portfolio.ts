@@ -143,7 +143,7 @@ export const projects: Project[] = [
     title: "Munchly",
     subtitle: "Social food photos with live scoring and AI taste picks",
     blurb:
-      "Post a plate, swipe Hot or Not, and watch it earn a live 0–10 score. Follow other foodies, climb the weekly Top board, and get AI-picked recommendations based on what you've rated.",
+      "Post a plate, swipe Hot or Not, and watch it earn a live 0 to 10 score. Follow other foodies, climb the weekly Top board, and get AI-picked recommendations based on what you've rated.",
     role: "Solo Developer",
     period: "2026",
     tags: ["Next.js", "TypeScript", "Supabase", "TailwindCSS", "Framer Motion", "Groq"],
@@ -175,7 +175,7 @@ export const projects: Project[] = [
       outcome:
         "The result is a food app people actually open daily: post a plate, get scored in real time, and get taste picks that sharpen the more you rate.",
       results: [
-        "Posts get a live 0-10 score from community votes",
+        "Posts get a live 0 to 10 score from community votes",
         "Weekly Top board updates in real time",
         "AI recommendations based on personal rating history",
       ],
@@ -184,44 +184,49 @@ export const projects: Project[] = [
   {
     slug: "intelswarm",
     title: "IntelSwarm",
-    subtitle: "Parallel specialist agents for company intelligence",
+    subtitle: "A hierarchical agent swarm for company intelligence",
     blurb:
-      "Enter a company name and get a full intelligence report covering product, hiring, funding, news, and culture, built by parallel specialist agents in seconds.",
+      "Enter a company name and five specialist agents research product, hiring, funding, news, and culture in parallel, review their own work, and synthesize it into one briefing with a TL;DR and strategic recommendations.",
     role: "Solo Developer",
     period: "2026",
-    tags: ["Python", "FastAPI", "Strands Agents", "Ollama", "React", "Multi-agent systems"],
+    tags: ["Python", "Strands Agents", "FastAPI", "Groq", "React", "Multi-agent systems"],
     accent: "oklch(0.84 0.06 320)",
     image: intelswarmScreenshot,
     repo: "https://github.com/sanskritim05/IntelSwarm",
     link: "https://intel-swarm-phi.vercel.app",
     caseStudy: {
       timeline: "2026",
-      tools: ["Python", "FastAPI", "Strands Agents", "Ollama", "React"],
-      skills: ["Multi-agent Design", "Backend APIs", "Frontend Integration"],
+      tools: ["Python", "Strands Agents", "FastAPI", "Groq", "React", "Vite"],
+      skills: ["Multi-agent Orchestration", "Tool Calling", "Quality Control Loops", "Streaming APIs"],
       problem:
-        "Researching a company means opening a dozen tabs and stitching together product pages, job posts, funding news, and reviews. The work is repetitive and the output is never in the same shape twice. I wanted one input and one structured report.",
+        "Researching a company means opening a dozen tabs and stitching together product pages, job posts, funding news, and reviews. The work is repetitive, the output is never in the same shape twice, and a single prompt asked to do all of it produces thin, uneven sections. I wanted one input and one structured briefing, with every section held to the same bar.",
       summary:
-        "A multi-agent research tool that turns one company name into a single, consistently structured report.",
+        "A hierarchical swarm of Strands agents that turns one company name into a reviewed, recruiter-style briefing.",
       process: [
         {
-          label: "One agent per domain",
-          body: "Gave product, hiring, funding, news, and culture their own specialist agent so each prompt stays focused and testable.",
+          label: "Specialists with tools",
+          body: "Built each of the five specialists (product, hiring, funding, news, culture) as a Strands Agent with its own tool-decorated web search, so every prompt stays focused on one domain.",
         },
         {
-          label: "Parallel execution",
-          body: "Ran the specialists concurrently behind a FastAPI endpoint, then merged their output into one report schema.",
+          label: "A graph, not a script",
+          body: "Wired the pipeline as a Strands multi-agent Graph: the five specialists start in parallel, and an orchestrator node runs once all of them finish. Inference runs on Groq's gpt-oss-120b through Strands' OpenAI-compatible provider.",
         },
         {
-          label: "Readable frontend",
-          body: "Built a React view that renders the report section by section as results arrive.",
+          label: "Review and rerun",
+          body: "Each specialist reports a quality score. Sections below the threshold are rerun with targeted guidance, up to a set limit, before the orchestrator synthesizes the strongest outputs into a TL;DR and strategic recommendations.",
+        },
+        {
+          label: "Live progress",
+          body: "Streamed the graph's events to a React frontend over server-sent events, so each agent's progress and quality badge appear as it works. A CLI runs the same swarm with a live status table.",
         },
       ],
       outcome:
-        "The result is company research that used to take an hour, delivered as one structured report in the time it takes the agents to run in parallel.",
+        "The result is company research that used to take an hour, delivered as one consistent briefing: five reviewed sections, a TL;DR, and recommendations, saved as markdown you can copy or download.",
       results: [
-        "Five consistent sections for any company",
-        "Parallel agents instead of serial research",
-        "One API contract shared by report and UI",
+        "Five specialist agents running in parallel in a Strands Graph",
+        "Weak sections automatically rerun before synthesis",
+        "Live per-agent progress streamed to the browser",
+        "Same swarm available from a web app or the CLI",
       ],
     },
   },
