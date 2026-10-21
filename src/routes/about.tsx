@@ -134,7 +134,7 @@ function ExperienceCard({ e }: { e: (typeof experience)[number] }) {
 type Rect = { x: number; y: number; width: number; height: number };
 /** Where a thumbnail's full image sits on screen, plus the clip that crops it to what's visible. */
 type Frame = { rect: Rect; clip: string };
-type LightboxItem = { id: string; src: string; alt: string; caption: string };
+type LightboxItem = { id: string; src: string; alt: string; caption?: string };
 type OpenImage = { item: LightboxItem; ratio: number; from: Frame };
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
@@ -172,11 +172,11 @@ function thumbnailFrame(img: HTMLImageElement): Frame {
 }
 
 /** Largest rect with the given aspect ratio that fits the viewport, leaving room for the caption. */
-function fitRect(ratio: number): Rect {
+function fitRect(ratio: number, hasCaption: boolean): Rect {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const pad = vw >= 768 ? 40 : 16;
-  const caption = 48;
+  const caption = hasCaption ? 48 : 0;
   const width = Math.min(vw - pad * 2, Math.min(vh * 0.8, vh - pad * 2 - caption) * ratio);
   const height = width / ratio;
   return { x: (vw - width) / 2, y: (vh - height - caption) / 2, width, height };
@@ -219,7 +219,7 @@ function ImageLightbox({
     };
   }, [open, onClose]);
 
-  const to = open ? fitRect(open.ratio) : null;
+  const to = open ? fitRect(open.ratio, Boolean(open.item.caption)) : null;
 
   // The enlarged image flies back to the thumbnail itself (rather than handing off to the
   // thumbnail's <img>), so it isn't clipped by the card or the scrolling row on the way.
@@ -248,7 +248,7 @@ function ImageLightbox({
           key="image-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label={open.item.caption}
+          aria-label={open.item.caption || open.item.alt}
           onClick={onClose}
           className="fixed inset-0 z-50 cursor-zoom-out"
         >
@@ -294,15 +294,17 @@ function ImageLightbox({
               className="h-full w-full"
             />
           </motion.div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 0.2, duration: 0.25 } }}
-            exit={{ opacity: 0, transition: { duration: 0.1 } }}
-            style={{ top: to.y + to.height + 16 }}
-            className="fixed inset-x-4 text-center font-body text-sm text-[oklch(0.97_0.012_235/0.85)]"
-          >
-            {open.item.caption}
-          </motion.p>
+          {open.item.caption && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { delay: 0.2, duration: 0.25 } }}
+              exit={{ opacity: 0, transition: { duration: 0.1 } }}
+              style={{ top: to.y + to.height + 16 }}
+              className="fixed inset-x-4 text-center font-body text-sm text-[oklch(0.97_0.012_235/0.85)]"
+            >
+              {open.item.caption}
+            </motion.p>
+          )}
         </motion.div>
       )}
     </AnimatePresence>,
@@ -507,7 +509,6 @@ function About() {
                       id: `photo:${i}`,
                       src: photo.src,
                       alt: photo.caption,
-                      caption: photo.caption,
                     })
                   }
                   aria-label={`Enlarge photo: ${photo.caption}`}
