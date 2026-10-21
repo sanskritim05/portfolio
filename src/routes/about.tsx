@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ExternalLink } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { ExternalLink, X } from "lucide-react";
 import { ScrapbookLayout } from "@/components/ScrapbookLayout";
 import {
   experience,
@@ -101,6 +102,19 @@ function ExperienceCard({ e }: { e: (typeof experience)[number] }) {
         <div className="mt-3">
           <p className="font-body text-sm leading-relaxed text-[oklch(0.32_0.04_264)]">
             {e.note}
+            {"link" in e && e.link && (
+              <>
+                {" "}
+                <a
+                  href={e.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium underline underline-offset-2 hover:opacity-80"
+                >
+                  {e.link.replace("https://", "")}
+                </a>
+              </>
+            )}
           </p>
           {e.tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
@@ -117,9 +131,76 @@ function ExperienceCard({ e }: { e: (typeof experience)[number] }) {
   );
 }
 
+type Certificate = (typeof certificates)[number];
+
+function CertificateLightbox({
+  cert,
+  onClose,
+}: {
+  cert: Certificate | null;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    if (!cert) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [cert, onClose]);
+
+  // Portal to <body> so the page's stacking contexts (nav, footer) can't sit above it
+  return createPortal(
+    <AnimatePresence>
+      {cert && (
+        <motion.div
+          key="cert-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={cert.title}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          onClick={onClose}
+          className="fixed inset-0 z-50 flex cursor-zoom-out flex-col items-center justify-center gap-4 bg-[oklch(0.18_0.04_264/0.85)] p-4 backdrop-blur-sm md:p-10"
+        >
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close certificate"
+            autoFocus
+            className="absolute right-4 top-4 rounded-full bg-[oklch(0.97_0.012_235/0.12)] p-2 text-[oklch(0.97_0.012_235)] transition-colors hover:bg-[oklch(0.97_0.012_235/0.25)] md:right-8 md:top-8"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <motion.img
+            layoutId={`cert-${cert.title}`}
+            src={cert.image}
+            alt={cert.title}
+            transition={{ type: "spring", stiffness: 260, damping: 30 }}
+            className="max-h-[80vh] w-auto max-w-full rounded-xl bg-white object-contain shadow-2xl"
+          />
+          <p className="text-center font-body text-sm text-[oklch(0.97_0.012_235/0.85)]">
+            {cert.title} · {cert.date}
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body,
+  );
+}
+
 function About() {
+  const [openCert, setOpenCert] = useState<Certificate | null>(null);
+  const closeCert = useCallback(() => setOpenCert(null), []);
+
   return (
     <ScrapbookLayout>
+      <CertificateLightbox cert={openCert} onClose={closeCert} />
       <div className="pb-4 pl-10 pr-6 pt-10 md:pl-16 md:pr-12">
         <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -221,14 +302,20 @@ function About() {
                 key={c.title}
                 className="flex h-[360px] w-[260px] shrink-0 flex-col rounded-2xl border border-[oklch(0.24_0.05_264/0.14)] p-4"
               >
-                <div className="h-[180px] w-full shrink-0 overflow-hidden rounded-xl bg-[oklch(0.95_0.008_235)]">
-                  <img
+                <button
+                  type="button"
+                  onClick={() => setOpenCert(c)}
+                  aria-label={`Enlarge ${c.title} certificate`}
+                  className="group/cert h-[180px] w-full shrink-0 cursor-zoom-in overflow-hidden rounded-xl bg-[oklch(0.95_0.008_235)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[oklch(0.24_0.05_264)]"
+                >
+                  <motion.img
+                    layoutId={`cert-${c.title}`}
                     src={c.image}
                     alt={c.title}
                     loading="lazy"
-                    className="h-full w-full object-contain object-center"
+                    className="h-full w-full object-contain object-center transition-transform duration-300 group-hover/cert:scale-105"
                   />
-                </div>
+                </button>
                 <div className="pt-4">
                   <h3 className="font-display text-base font-semibold leading-snug text-[oklch(0.24_0.05_264)]">
                     {c.title}
