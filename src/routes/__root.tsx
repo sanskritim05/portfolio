@@ -76,14 +76,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Sanskriti Malakar — AI/ML & full-stack engineering portfolio",
+          "Sanskriti Malakar | AI/ML & full-stack engineering portfolio",
       },
       { name: "author", content: "Sanskriti Malakar" },
       { property: "og:title", content: "Sanskriti Malakar" },
       {
         property: "og:description",
         content:
-          "Sanskriti Malakar — AI/ML & full-stack engineering portfolio",
+          "Sanskriti Malakar | AI/ML & full-stack engineering portfolio",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

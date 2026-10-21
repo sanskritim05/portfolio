@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-/** Soft ease — settles gently so the work title doesn't feel abrupt. */
+/** Soft ease that settles gently so the work title doesn't feel abrupt. */
 const easeOutQuint = (t: number) => 1 - Math.pow(1 - t, 5);
 
 /** Keep a little air above "My Work" so script letterforms aren't clipped. */
