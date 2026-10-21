@@ -461,7 +461,8 @@ export const experience = [
     role: "Research Assistant",
     company: "Weill Cornell Medicine",
     period: "Aug 2026 - Present",
-    note: "",
+    note: "Working at",
+    link: "https://imeds.ai",
     tags: [] as string[],
   },
   {
@@ -519,7 +520,7 @@ export const education = [
     school: "Cornell University · Cornell Tech",
     detail:
       "M.S. Applied Information Science & M.S. Information Systems, concentration in Health Tech",
-    period: "Aug 2026 onwards, New York City",
+    period: "Aug 2026 - May 2028 (expected), New York City",
   },
   {
     school: "Rutgers University, New Brunswick",
