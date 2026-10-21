@@ -4,6 +4,9 @@ import intelswarmScreenshot from "@/assets/project-intelswarm.png";
 import syncScreenshot from "@/assets/project-sync.png";
 import realEstateScreenshot from "@/assets/project-real-estate-rag.png";
 import clinicalRiskScreenshot from "@/assets/project-clinical-risk.png";
+import voiceFleetScreenshot from "@/assets/project-voice-fleet.jpg";
+import photoboothScreenshot from "@/assets/project-photobooth.jpg";
+import medicareScreenshot from "@/assets/project-medicare-drug-cost.jpg";
 import awsAiPractitionerCert from "@/assets/cert-aws-ai-practitioner.png";
 import awsCloudPractitionerCert from "@/assets/cert-aws-cloud-practitioner.png";
 import awsMlFundamentalsCert from "@/assets/cert-aws-ml-fundamentals.png";
@@ -87,6 +90,51 @@ export const projects: Project[] = [
         "Every claim links back to a retrieved source",
         "Comparisons across studies and trials in one pass",
         "Sessions exportable as a citable PDF",
+      ],
+    },
+  },
+  {
+    slug: "fleet-voice",
+    title: "Fleet Voice",
+    subtitle: "A voice agent for truck drivers, audited by safety rules",
+    blurb:
+      "A driver reports a problem out loud and the agent asks one follow-up if it needs to, logs the incident, alerts dispatch, and speaks the next step back, with deterministic safety rules checking every decision.",
+    role: "Solo Developer",
+    period: "2026",
+    tags: ["Python", "FastAPI", "Groq", "Whisper", "ElevenLabs", "Tool Calling", "Evals"],
+    accent: "oklch(0.86 0.08 80)",
+    image: voiceFleetScreenshot,
+    link: "https://voice-fleet-assistant.vercel.app",
+    repo: "https://github.com/sanskritim05/voice-fleet-assistant",
+    caseStudy: {
+      timeline: "2026",
+      tools: ["Python", "FastAPI", "Groq", "Whisper", "ElevenLabs", "Upstash Redis"],
+      skills: ["Voice Agents", "Tool Calling", "Safety Guardrails", "LLM Evaluation"],
+      problem:
+        "A driver with failing brakes shouldn't be quizzed by a chatbot, and a squeaky door shouldn't page dispatch. Language models are good at understanding messy, indirect reports, but on their own they can underrate a real hazard or ask one question too many. I wanted an agent that knows when to stop asking and act, and a way to measure how often it gets that right.",
+      summary:
+        "A multi-turn voice agent where the model leads, deterministic rules audit, and a 48-scenario eval suite keeps both honest.",
+      process: [
+        {
+          label: "Agent with tools",
+          body: "Gave gpt-oss-120b on Groq five tools: log an incident, escalate to dispatch, message dispatch, pull the truck's service history, and find the nearest repair shop. Speech comes in through Groq Whisper and replies are spoken with ElevenLabs.",
+        },
+        {
+          label: "Safety floor",
+          body: "Added deterministic rules that can only make an outcome safer: they raise severity and force escalation but never lower anything. Critical hazards are escalated on the turn they're reported, and the agent stops after two questions.",
+        },
+        {
+          label: "Evaluation-driven fixes",
+          body: "Wrote 48 scenarios covering downplayed hazards, negation, prompt injection, other languages, and driver health emergencies. The first run found missed hazards, false alarms, and a grading bug; each fix was re-measured with a full re-run.",
+        },
+      ],
+      outcome:
+        "The result is a voice assistant a driver can trust on the road: it acts immediately on real hazards, asks only when it needs to, falls back to the rules engine if the model is down, and shows every call it made in a live dispatch console.",
+      results: [
+        "44 of 48 safety scenarios passed, up from 41 after eval-driven fixes",
+        "1 of 27 critical hazards missed, versus 8 with rules alone",
+        "1.8 s median turn latency from speech to spoken reply",
+        "Live dispatch console with full transcripts and tool calls",
       ],
     },
   },
@@ -222,6 +270,59 @@ export const projects: Project[] = [
     },
   },
   {
+    slug: "photobooth",
+    title: "My Photobooth",
+    subtitle: "Four poses, one printed strip, right in the browser",
+    blurb:
+      "Drop a coin, step behind the curtain, and strike four poses before each countdown ends. Then dress up your strip with frames, backdrops, film effects, and a caption, and download it as a PNG.",
+    role: "Solo Developer",
+    period: "2026",
+    tags: ["JavaScript", "HTML", "CSS", "SVG", "Canvas API", "Web Audio API"],
+    accent: "oklch(0.86 0.06 350)",
+    image: photoboothScreenshot,
+    link: "https://photobooth-me.vercel.app",
+    repo: "https://github.com/sanskritim05/photobooth",
+    caseStudy: {
+      timeline: "2026",
+      tools: [
+        "JavaScript",
+        "HTML",
+        "CSS",
+        "SVG",
+        "Canvas API",
+        "MediaDevices API",
+        "Web Audio API",
+      ],
+      skills: ["Interaction Design", "Image Processing", "Animation", "Privacy by Design"],
+      problem:
+        "Online photo booth apps usually feel like a webcam with a filter on top. The fun of the real thing is the ritual: the curtain, the countdown, the flash, and waiting for the strip to print. I wanted to bring that whole experience into the browser without accounts, uploads, or a backend.",
+      summary:
+        "A browser photo booth that recreates the ritual of the real thing, from coin slot to printed strip.",
+      process: [
+        {
+          label: "The booth",
+          body: "Drew the booth in SVG with a working coin slot and curtain, and animated it into the camera view. The camera stream is front-facing, has no audio, and stops when you leave.",
+        },
+        {
+          label: "Capture and develop",
+          body: "Captured four mirrored shots into in-memory canvases, applied color, black-and-white, or sepia film with pixel processing, and generated shutter and printer sounds with the Web Audio API.",
+        },
+        {
+          label: "Print editor",
+          body: "Built Canvas renderers for six strip frames and four single-photo frames, eight backdrops plus custom uploads, and editable captions. Originals stay in memory so film can be switched without degrading the image.",
+        },
+      ],
+      outcome:
+        "The result is a photo booth that feels like the real thing: step in, pose four times, watch your strip print, and walk away with a custom PNG, with every photo processed locally.",
+      results: [
+        "Ten frames, eight backdrops, and three film effects",
+        "No backend: photos never leave the browser",
+        "Fully keyboard-operable, with a photo-upload fallback when there's no camera",
+        "Shutter and printer sounds generated in the browser",
+      ],
+    },
+  },
+  {
     slug: "real-estate-rag-assistant",
     title: "Real Estate RAG Assistant",
     subtitle: "Document-grounded answers with page citations",
@@ -306,6 +407,50 @@ export const projects: Project[] = [
         "Calibrated probabilities rather than raw scores",
         "Per-prediction factor attribution with SHAP",
         "Model served through an API and simple UI",
+      ],
+    },
+  },
+  {
+    slug: "medicare-drug-cost-prediction",
+    title: "Medicare Drug Cost Prediction",
+    subtitle: "A Databricks lakehouse that predicts next year's top brand-name spenders",
+    blurb:
+      "A PySpark pipeline that turns raw CMS Medicare Part D data into bronze, silver, and gold Delta tables, then predicts which prescribers will be in next year's top 10% of brand-name drug cost.",
+    role: "Solo Developer",
+    period: "2026",
+    tags: ["Python", "PySpark", "Databricks", "Delta Lake", "Spark ML", "MLflow"],
+    accent: "oklch(0.82 0.07 295)",
+    image: medicareScreenshot,
+    repo: "https://github.com/sanskritim05/medicare-drug-cost-prediction",
+    caseStudy: {
+      timeline: "2026",
+      tools: ["Python", "PySpark", "Databricks", "Delta Lake", "Spark ML", "MLflow", "pytest"],
+      skills: ["Data Engineering", "Data Quality", "Predictive Modeling", "Honest Benchmarking"],
+      problem:
+        "Brand-name drugs are a small share of Medicare Part D claims but a large share of its cost. A review team with limited capacity wants to know ahead of time which prescribers are likely to be the biggest brand-name spenders next year, so it can focus outreach and generic-substitution education where it matters.",
+      summary:
+        "A bronze/silver/gold lakehouse and a model that is benchmarked against the simplest rule that could possibly work.",
+      process: [
+        {
+          label: "Lakehouse layers",
+          body: "Landed raw CMS files in bronze as delivered, typed and cleaned them once in silver, and aggregated to one row per prescriber per year in gold. Each year is written with Delta replaceWhere, so reruns never duplicate data.",
+        },
+        {
+          label: "Data quality and a vaccine catch",
+          body: "Ran null, negative-cost, and duplicate checks before and after cleaning and logged them to a Delta table. Checking the top of the gold table showed two of the three biggest brand spenders were mostly vaccines, which can never be swapped for a generic, so vaccines are excluded from brand cost.",
+        },
+        {
+          label: "Models against a baseline",
+          body: "Compared a prior-year-spend baseline with logistic regression and gradient-boosted trees in Spark ML, tracked in MLflow. Precision in the top 10% was the headline metric, since that is what a team with fixed review capacity cares about.",
+        },
+      ],
+      outcome:
+        "The headline is honest: gradient-boosted trees reach 0.978 AUROC, but ranking by last year's brand cost already gets almost all of the way there. Brand-name spending is extremely persistent, so the next useful model would predict which prescribers newly enter the top 10%.",
+      results: [
+        "Gradient-boosted trees: 0.978 AUROC and 82% precision in the top 10%",
+        "A one-line prior-year baseline reached 81%, a gap within noise",
+        "Data quality checks recorded to a Delta table on every run",
+        "Pipeline logic unit-tested locally with PySpark and run in CI",
       ],
     },
   },

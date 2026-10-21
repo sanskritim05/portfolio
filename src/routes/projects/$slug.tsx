@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { ScrapbookLayout } from "@/components/ScrapbookLayout";
-import { projects, type CaseStudy } from "@/lib/portfolio";
+import { projects, type CaseStudy, type Project } from "@/lib/portfolio";
 
 export const Route = createFileRoute("/projects/$slug")({
   loader: ({ params }) => {
@@ -67,6 +67,27 @@ function MetaCol({ label, children }: { label: string; children: React.ReactNode
   );
 }
 
+function ProjectHero({ p }: { p: Project }) {
+  return (
+    <>
+      {p.image ? (
+        <img
+          src={p.image}
+          alt={`${p.title} preview`}
+          className="absolute inset-0 h-full w-full object-contain object-center"
+        />
+      ) : null}
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          background: `radial-gradient(circle at 75% 25%, ${p.accent} 0%, transparent 62%)`,
+          opacity: 0.45,
+        }}
+      />
+    </>
+  );
+}
+
 function ProjectPage() {
   const { project: p } = Route.useLoaderData();
   const cs = p.caseStudy as CaseStudy;
@@ -111,28 +132,21 @@ function ProjectPage() {
             )}
           </div>
 
-          <a
-            href={p.link}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`Open ${p.title} live project`}
-            className="relative mt-10 block aspect-[16/9] w-full overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]"
-          >
-            {p.image ? (
-              <img
-                src={p.image}
-                alt={`${p.title} preview`}
-                className="absolute inset-0 h-full w-full object-contain object-center"
-              />
-            ) : null}
-            <div
-              className="absolute inset-0 -z-10"
-              style={{
-                background: `radial-gradient(circle at 75% 25%, ${p.accent} 0%, transparent 62%)`,
-                opacity: 0.45,
-              }}
-            />
-          </a>
+          {p.link ? (
+            <a
+              href={p.link}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Open ${p.title} live project`}
+              className="relative mt-10 block aspect-[16/9] w-full overflow-hidden rounded-2xl transition-transform duration-300 hover:scale-[1.01]"
+            >
+              <ProjectHero p={p} />
+            </a>
+          ) : (
+            <div className="relative mt-10 aspect-[16/9] w-full overflow-hidden rounded-2xl">
+              <ProjectHero p={p} />
+            </div>
+          )}
 
           <div className="mt-10 grid gap-8 border-b border-[oklch(0.24_0.05_264/0.18)] pb-10 sm:grid-cols-2">
             <MetaCol label="tools">{cs.tools.join(", ")}</MetaCol>
