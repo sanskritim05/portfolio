@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, X } from "lucide-react";
 import { ScrapbookLayout } from "@/components/ScrapbookLayout";
@@ -131,62 +131,178 @@ function ExperienceCard({ e }: { e: (typeof experience)[number] }) {
   );
 }
 
-type Certificate = (typeof certificates)[number];
+type Rect = { x: number; y: number; width: number; height: number };
+/** Where a thumbnail's full image sits on screen, plus the clip that crops it to what's visible. */
+type Frame = { rect: Rect; clip: string };
+type LightboxItem = { id: string; src: string; alt: string; caption: string };
+type OpenImage = { item: LightboxItem; ratio: number; from: Frame };
 
-function CertificateLightbox({
-  cert,
+const EASE_OUT = [0.22, 1, 0.36, 1] as const;
+const FULL_CLIP = "inset(0% 0% 0% 0% round 12px)";
+
+/**
+ * Frame of a thumbnail <img> using object-fit contain or cover: the rect the whole
+ * picture would occupy at that size, and an inset clip matching the part that's shown.
+ */
+function thumbnailFrame(img: HTMLImageElement): Frame {
+  const box = img.getBoundingClientRect();
+  const ratio = img.naturalWidth / img.naturalHeight || box.width / box.height;
+  const style = getComputedStyle(img);
+  const cover = style.objectFit === "cover";
+  const width = cover
+    ? Math.max(box.width, box.height * ratio)
+    : Math.min(box.width, box.height * ratio);
+  const height = width / ratio;
+  const [px, py] = style.objectPosition.split(" ").map((v) => parseFloat(v) / 100);
+  const rect = {
+    x: box.left + (box.width - width) * (Number.isNaN(px) ? 0.5 : px),
+    y: box.top + (box.height - height) * (Number.isNaN(py) ? 0.5 : py),
+    width,
+    height,
+  };
+  if (!cover) return { rect, clip: "inset(0% 0% 0% 0% round 0px)" };
+  const pct = (n: number, of: number) => `${(Math.max(0, n) / of) * 100}%`;
+  return {
+    rect,
+    clip: `inset(${pct(box.top - rect.y, height)} ${pct(rect.x + width - box.right, width)} ${pct(
+      rect.y + height - box.bottom,
+      height,
+    )} ${pct(box.left - rect.x, width)} round 0px)`,
+  };
+}
+
+/** Largest rect with the given aspect ratio that fits the viewport, leaving room for the caption. */
+function fitRect(ratio: number): Rect {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const pad = vw >= 768 ? 40 : 16;
+  const caption = 48;
+  const width = Math.min(vw - pad * 2, Math.min(vh * 0.8, vh - pad * 2 - caption) * ratio);
+  const height = width / ratio;
+  return { x: (vw - width) / 2, y: (vh - height - caption) / 2, width, height };
+}
+
+/** Transform that makes an element laid out at `to` appear at `from`. */
+function offset(from: Rect, to: Rect) {
+  return {
+    x: from.x + from.width / 2 - (to.x + to.width / 2),
+    y: from.y + from.height / 2 - (to.y + to.height / 2),
+    scale: from.width / to.width,
+  };
+}
+
+function ImageLightbox({
+  open,
+  returnTo,
   onClose,
+  onExitComplete,
 }: {
-  cert: Certificate | null;
+  open: OpenImage | null;
+  returnTo: Frame | null;
   onClose: () => void;
+  onExitComplete: () => void;
 }) {
+  const [, setViewport] = useState(0);
+
   useEffect(() => {
-    if (!cert) return;
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onResize = () => setViewport((n) => n + 1);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", onResize);
     return () => {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onResize);
     };
-  }, [cert, onClose]);
+  }, [open, onClose]);
+
+  const to = open ? fitRect(open.ratio) : null;
+
+  // The enlarged image flies back to the thumbnail itself (rather than handing off to the
+  // thumbnail's <img>), so it isn't clipped by the card or the scrolling row on the way.
+  // The wrapper moves and scales; the image's clip-path crops it back to the thumbnail.
+  const enter = { duration: 0.4, ease: EASE_OUT };
+  const leave = { duration: 0.28, ease: EASE_OUT };
+  const frameVariants = {
+    from: () => (open && to ? offset(open.from.rect, to) : {}),
+    full: { x: 0, y: 0, scale: 1, opacity: 1, transition: enter },
+    back: (target: Frame | null) =>
+      target && to
+        ? { ...offset(target.rect, to), transition: leave }
+        : { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
+  };
+  const clipVariants = {
+    from: () => ({ clipPath: open?.from.clip }),
+    full: { clipPath: FULL_CLIP, transition: enter },
+    back: (target: Frame | null) => ({ clipPath: target?.clip ?? FULL_CLIP, transition: leave }),
+  };
 
   // Portal to <body> so the page's stacking contexts (nav, footer) can't sit above it
   return createPortal(
-    <AnimatePresence>
-      {cert && (
+    <AnimatePresence custom={returnTo} onExitComplete={onExitComplete}>
+      {open && to && (
         <motion.div
-          key="cert-lightbox"
+          key="image-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label={cert.title}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
+          aria-label={open.item.caption}
           onClick={onClose}
-          className="fixed inset-0 z-50 flex cursor-zoom-out flex-col items-center justify-center gap-4 bg-[oklch(0.18_0.04_264/0.85)] p-4 backdrop-blur-sm md:p-10"
+          className="fixed inset-0 z-50 cursor-zoom-out"
         >
-          <button
+          <motion.div
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { duration: 0.3 } }}
+            exit={{ opacity: 0, transition: { duration: 0.22 } }}
+            className="absolute inset-0 bg-[oklch(0.18_0.04_264/0.85)] backdrop-blur-sm"
+          />
+          <motion.button
             type="button"
             onClick={onClose}
-            aria-label="Close certificate"
+            aria-label="Close image"
             autoFocus
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { delay: 0.15 } }}
+            exit={{ opacity: 0, transition: { duration: 0.1 } }}
             className="absolute right-4 top-4 rounded-full bg-[oklch(0.97_0.012_235/0.12)] p-2 text-[oklch(0.97_0.012_235)] transition-colors hover:bg-[oklch(0.97_0.012_235/0.25)] md:right-8 md:top-8"
           >
             <X className="h-5 w-5" />
-          </button>
-          <motion.img
-            layoutId={`cert-${cert.title}`}
-            src={cert.image}
-            alt={cert.title}
-            transition={{ type: "spring", stiffness: 260, damping: 30 }}
-            className="max-h-[80vh] w-auto max-w-full rounded-xl object-contain shadow-2xl"
-          />
-          <p className="text-center font-body text-sm text-[oklch(0.97_0.012_235/0.85)]">
-            {cert.title} · {cert.date}
-          </p>
+          </motion.button>
+          <motion.div
+            custom={returnTo}
+            variants={frameVariants}
+            initial="from"
+            animate="full"
+            exit="back"
+            style={{
+              left: to.x,
+              top: to.y,
+              width: to.width,
+              height: to.height,
+              filter: "drop-shadow(0 25px 50px rgb(0 0 0 / 0.35))",
+            }}
+            className="fixed will-change-transform"
+          >
+            <motion.img
+              src={open.item.src}
+              alt={open.item.alt}
+              custom={returnTo}
+              variants={clipVariants}
+              className="h-full w-full"
+            />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { delay: 0.2, duration: 0.25 } }}
+            exit={{ opacity: 0, transition: { duration: 0.1 } }}
+            style={{ top: to.y + to.height + 16 }}
+            className="fixed inset-x-4 text-center font-body text-sm text-[oklch(0.97_0.012_235/0.85)]"
+          >
+            {open.item.caption}
+          </motion.p>
         </motion.div>
       )}
     </AnimatePresence>,
@@ -195,12 +311,49 @@ function CertificateLightbox({
 }
 
 function About() {
-  const [openCert, setOpenCert] = useState<Certificate | null>(null);
-  const closeCert = useCallback(() => setOpenCert(null), []);
+  const [openImage, setOpenImage] = useState<OpenImage | null>(null);
+  const [returnTo, setReturnTo] = useState<Frame | null>(null);
+  // Id of the thumbnail hidden while its enlarged copy is out
+  const [liftedId, setLiftedId] = useState<string | null>(null);
+  const thumbnails = useRef(new Map<string, HTMLImageElement>());
+
+  const registerThumbnail = (id: string) => (el: HTMLImageElement | null) => {
+    if (el) thumbnails.current.set(id, el);
+    else thumbnails.current.delete(id);
+  };
+
+  const enlarge = (item: LightboxItem) => {
+    const img = thumbnails.current.get(item.id);
+    if (!img) return;
+    setReturnTo(null);
+    setLiftedId(item.id);
+    setOpenImage({
+      item,
+      ratio: img.naturalWidth / img.naturalHeight || 4 / 3,
+      from: thumbnailFrame(img),
+    });
+  };
+
+  const closeImage = useCallback(() => {
+    if (!openImage) return;
+    const img = thumbnails.current.get(openImage.item.id);
+    setReturnTo(img ? thumbnailFrame(img) : openImage.from);
+    setOpenImage(null);
+  }, [openImage]);
+
+  const handleExitComplete = useCallback(() => setLiftedId(null), []);
+  const liftedStyle = (id: string) => ({
+    visibility: liftedId === id ? ("hidden" as const) : ("visible" as const),
+  });
 
   return (
     <ScrapbookLayout>
-      <CertificateLightbox cert={openCert} onClose={closeCert} />
+      <ImageLightbox
+        open={openImage}
+        returnTo={returnTo}
+        onClose={closeImage}
+        onExitComplete={handleExitComplete}
+      />
       <div className="pb-4 pl-10 pr-6 pt-10 md:pl-16 md:pr-12">
         <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -304,15 +457,23 @@ function About() {
               >
                 <button
                   type="button"
-                  onClick={() => setOpenCert(c)}
+                  onClick={() =>
+                    enlarge({
+                      id: `cert:${c.title}`,
+                      src: c.image,
+                      alt: c.title,
+                      caption: `${c.title} · ${c.date}`,
+                    })
+                  }
                   aria-label={`Enlarge ${c.title} certificate`}
                   className="group/cert h-[180px] w-full shrink-0 cursor-zoom-in overflow-hidden rounded-xl bg-[oklch(0.95_0.008_235)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[oklch(0.24_0.05_264)]"
                 >
-                  <motion.img
-                    layoutId={`cert-${c.title}`}
+                  <img
+                    ref={registerThumbnail(`cert:${c.title}`)}
                     src={c.image}
                     alt={c.title}
                     loading="lazy"
+                    style={liftedStyle(`cert:${c.title}`)}
                     className="h-full w-full object-contain object-center transition-transform duration-300 group-hover/cert:scale-105"
                   />
                 </button>
@@ -339,14 +500,28 @@ function About() {
                 key={i}
                 className="shrink-0 rounded-md bg-white p-3 shadow-[0_6px_20px_rgba(18,29,52,0.18)] transition-transform duration-300 hover:-translate-y-1"
               >
-                <div className="h-52 w-52 overflow-hidden rounded-sm md:h-60 md:w-60">
+                <button
+                  type="button"
+                  onClick={() =>
+                    enlarge({
+                      id: `photo:${i}`,
+                      src: photo.src,
+                      alt: photo.caption,
+                      caption: photo.caption,
+                    })
+                  }
+                  aria-label={`Enlarge photo: ${photo.caption}`}
+                  className="block h-52 w-52 cursor-zoom-in overflow-hidden rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[oklch(0.24_0.05_264)] md:h-60 md:w-60"
+                >
                   <img
+                    ref={registerThumbnail(`photo:${i}`)}
                     src={photo.src}
                     alt={photo.caption}
                     loading="lazy"
+                    style={liftedStyle(`photo:${i}`)}
                     className={`h-full w-full object-cover ${i === 1 ? "object-[center_75%]" : "object-center"}`}
                   />
-                </div>
+                </button>
               </figure>
             ))}
           </div>
