@@ -182,7 +182,7 @@ function CertificateLightbox({
             src={cert.image}
             alt={cert.title}
             transition={{ type: "spring", stiffness: 260, damping: 30 }}
-            className="max-h-[80vh] w-auto max-w-full rounded-xl bg-white object-contain shadow-2xl"
+            className="max-h-[80vh] w-auto max-w-full rounded-xl object-contain shadow-2xl"
           />
           <p className="text-center font-body text-sm text-[oklch(0.97_0.012_235/0.85)]">
             {cert.title} · {cert.date}
