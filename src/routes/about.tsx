@@ -143,8 +143,8 @@ function About() {
               on NLP for consumer insights and backend APIs for live products.
             </p>
             <p className="mt-6 font-body text-lg leading-relaxed text-[oklch(0.28_0.045_264)]">
-              Outside of building, I enjoy reading about retrieval and AI evaluation,
-              especially in healthcare settings. I’m also always looking for a new restaurant
+              Outside of building, I enjoy watching sitcoms and making coffee. I’m also
+              always looking for a new restaurant
               to try or a good excuse to stop and photograph the sky.
             </p>
 
