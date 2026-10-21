@@ -17,6 +17,8 @@ import skyCampus from "@/assets/sky-campus.png";
 import foodLeonsBagels from "@/assets/food-leons-bagels.jpg";
 import skyQueensboro from "@/assets/sky-queensboro.png";
 import foodDumplings from "@/assets/food-dumplings.jpg";
+import skyRiverSunset from "@/assets/sky-river-sunset.jpg";
+import foodLeafDumplings from "@/assets/food-leaf-dumplings.jpg";
 
 const polaroids = [
   { src: foodThai, caption: "thai night" },
@@ -26,6 +28,8 @@ const polaroids = [
   { src: foodLeonsBagels, caption: "leon's bagels, nyc" },
   { src: skyQueensboro, caption: "queensboro at dusk" },
   { src: foodDumplings, caption: "dumplings & noodles" },
+  { src: skyRiverSunset, caption: "sunset over the river" },
+  { src: foodLeafDumplings, caption: "leaf-pleated dumplings" },
 ];
 
 export const Route = createFileRoute("/about")({
