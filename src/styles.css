@@ -51,53 +51,6 @@
     height: 1px;
     background: oklch(0.24 0.05 264 / 0.22);
   }
-
-  .paper-card {
-    background-color: oklch(0.97 0.014 90);
-    color: oklch(0.26 0.05 264);
-    background-image:
-      radial-gradient(ellipse at top left, oklch(1 0 0 / 0.8) 0%, transparent 65%),
-      radial-gradient(
-        ellipse at bottom right,
-        oklch(0.9 0.03 235 / 0.45) 0%,
-        transparent 70%
-      );
-  }
-
-  .stitched {
-    border: 1px dashed oklch(0.86 0.06 235 / 0.55);
-    outline: 1px solid oklch(1 0 0 / 0.06);
-    outline-offset: 4px;
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-@keyframes sway {
-  0%,
-  100% {
-    transform: rotate(-2deg);
-  }
-  50% {
-    transform: rotate(2deg);
-  }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-sway {
-  animation: sway 7s ease-in-out infinite;
-  transform-origin: top center;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -161,22 +114,6 @@
 
 .custom-cursor.is-label .custom-cursor__label {
   display: block;
-}
-
-.lift-card {
-  transform-origin: center center;
-  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
-}
-
-.lift-card:hover {
-  transform: scale(1.035);
-}
-
-.lift-card:focus-visible {
-  outline: 2px solid oklch(0.97 0.012 235);
-  outline-offset: 4px;
-  transform: scale(1.035);
 }
 
 .project-card {
@@ -285,7 +222,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lift-card,
   .lift-stamp,
   .project-card__img,
   .project-card__title,
@@ -302,8 +238,6 @@
     animation: none;
   }
 
-  .lift-card:hover,
-  .lift-card:focus-visible,
   .lift-stamp:hover,
   .lift-stamp:active {
     transform: none;

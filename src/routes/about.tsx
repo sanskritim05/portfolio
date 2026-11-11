@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, X } from "lucide-react";
+import { AsciiBouquet } from "@/components/AsciiBouquet";
 import { ScrapbookLayout } from "@/components/ScrapbookLayout";
 import {
   experience,
@@ -357,7 +358,8 @@ function About() {
         onExitComplete={handleExitComplete}
       />
       <div className="pb-4 pl-10 pr-6 pt-10 md:pl-16 md:pr-12">
-        <motion.div
+        <div className="grid items-center gap-10 md:grid-cols-2 md:gap-12">
+          <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
@@ -392,6 +394,9 @@ function About() {
               Check out my projects!
             </Link>
           </motion.div>
+
+          <AsciiBouquet />
+        </div>
 
         <Block title="work experience">
           <div className="flex items-start gap-5 overflow-x-auto pb-3">
