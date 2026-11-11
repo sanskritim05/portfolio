@@ -8,9 +8,11 @@ import {
   useTransform,
 } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useRef } from "react";
 import { ScrapbookLayout } from "@/components/ScrapbookLayout";
 import { useHeroSnap } from "@/hooks/useHeroSnap";
 import { person, projects } from "@/lib/portfolio";
+import { confettiBurst, shootingStar } from "@/lib/scrapbookEffects";
 import heroBg from "@/assets/hero-scrapbook.png";
 
 export const Route = createFileRoute("/")({
@@ -19,8 +21,7 @@ export const Route = createFileRoute("/")({
       { title: "Sanskriti Malakar" },
       {
         name: "description",
-        content:
-          "Sanskriti Malakar | AI/ML & full-stack engineering portfolio",
+        content: "Sanskriti Malakar | AI/ML & full-stack engineering portfolio",
       },
       { property: "og:title", content: "Sanskriti Malakar" },
       {
@@ -34,6 +35,24 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+const TAPE_PATTERNS = ["stripes", "dots", "gingham", "grid", "plaid"] as const;
+
+/**
+ * Stable per-project numbers, so each card keeps the same tape and tilt on every visit. The
+ * pattern follows card order so neighbouring cards never share one.
+ */
+function cardLook(slug: string, index: number) {
+  let h = 2166136261;
+  for (let i = 0; i < slug.length; i++) h = Math.imul(h ^ slug.charCodeAt(i), 16777619) >>> 0;
+  const pick = (n: number, shift: number) => (h >>> shift) % n;
+  return {
+    tilt: (pick(7, 0) - 3) * 0.5, // resting tilt, -1.5..1.5 degrees
+    pattern: TAPE_PATTERNS[index % TAPE_PATTERNS.length],
+    tapeAngle: (pick(9, 9) - 4) * 1.5, // -6..6 degrees
+    tapeLeft: 32 + pick(37, 14), // 32..68% across the top edge
+  };
+}
+
 function ProjectCard({
   p,
   delay,
@@ -44,6 +63,7 @@ function ProjectCard({
   tilt: number;
 }) {
   const reduceMotion = useReducedMotion();
+  const look = cardLook(p.slug, projects.indexOf(p));
   // Pointer position over the card, normalised to -0.5..0.5 on each axis.
   const px = useMotionValue(0);
   const py = useMotionValue(0);
@@ -68,7 +88,7 @@ function ProjectCard({
   return (
     <motion.article
       initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 48, rotate: tilt, scale: 0.94 }}
-      whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
+      whileInView={{ opacity: 1, y: 0, rotate: look.tilt, scale: 1 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ type: "spring", stiffness: 70, damping: 14, delay }}
       className="group h-full"
@@ -81,7 +101,7 @@ function ProjectCard({
         whileHover={reduceMotion ? undefined : { y: -6 }}
         whileTap={reduceMotion ? undefined : { scale: 0.98 }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        className="h-full [transform-style:preserve-3d]"
+        className="relative h-full [transform-style:preserve-3d]"
       >
         <Link
           to="/projects/$slug"
@@ -129,8 +149,75 @@ function ProjectCard({
             />
           )}
         </Link>
+        {/* Washi tape holding the card onto the page; its right end peels up on hover */}
+        <span
+          aria-hidden
+          className="washi"
+          style={
+            {
+              left: `${look.tapeLeft}%`,
+              "--tape-rot": `${look.tapeAngle}deg`,
+            } as React.CSSProperties
+          }
+        >
+          <span className={`washi__strip washi__strip--${look.pattern}`} />
+        </span>
       </motion.div>
     </motion.article>
+  );
+}
+
+/** Centre of an element in viewport coordinates, and its width. */
+function centreOf(el: HTMLElement) {
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2, size: r.width };
+}
+
+/** Hidden easter eggs over the artwork: the SM monogram and the two denim stars. */
+function HeroEasterEggs() {
+  const monogramClicks = useRef<number[]>([]);
+
+  const onMonogram = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const now = performance.now();
+    const recent = [...monogramClicks.current.filter((t) => now - t < 650), now];
+    monogramClicks.current = recent;
+    if (recent.length >= 3) {
+      monogramClicks.current = [];
+      const { x, y } = centreOf(e.currentTarget);
+      confettiBurst(x, y);
+    }
+  };
+  const onStar = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const { x, y, size } = centreOf(e.currentTarget);
+    shootingStar(x, y, size);
+  };
+
+  // Positions are percentages of the 2000x1545 artwork, so they track it at any size
+  const egg = "absolute z-30 rounded-full";
+  return (
+    <>
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-hidden
+        onClick={onMonogram}
+        className={`${egg} left-[63.5%] top-[80%] h-[11%] w-[12.5%]`}
+      />
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-hidden
+        onClick={onStar}
+        className={`${egg} left-[74.4%] top-[66%] h-[9.6%] w-[7.4%]`}
+      />
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-hidden
+        onClick={onStar}
+        className={`${egg} left-[79.6%] top-[72.3%] h-[14%] w-[10.6%]`}
+      />
+    </>
   );
 }
 
@@ -167,6 +254,7 @@ function Home() {
               aria-label="About me"
               className="absolute left-[14%] top-0 z-30 h-[32%] w-[30%] rounded-full"
             />
+            <HeroEasterEggs />
 
             <motion.div
               initial={{ opacity: 0, y: 24 }}
@@ -179,9 +267,7 @@ function Home() {
               </h1>
               <p className="mt-2 font-body text-base font-light text-[oklch(0.97_0.012_235)/0.9] sm:text-xl md:text-[1.65rem]">
                 {person.nowLine.split("@")[0]}@{" "}
-                <span className="font-semibold">
-                  {person.nowLine.split("@")[1]?.trim()}
-                </span>
+                <span className="font-semibold">{person.nowLine.split("@")[1]?.trim()}</span>
               </p>
               <p className="mt-5 max-w-[36ch] font-body text-sm italic font-light leading-relaxed text-[oklch(0.97_0.012_235)/0.8] sm:text-base md:text-[1.15rem]">
                 {person.tagline}
@@ -191,10 +277,7 @@ function Home() {
         </section>
       }
     >
-      <section
-        className="px-6 pb-4 pt-10 md:px-12 md:pt-14"
-        aria-labelledby="work-heading"
-      >
+      <section className="px-6 pb-4 pt-10 md:px-12 md:pt-14" aria-labelledby="work-heading">
         <h2
           id="my-work"
           className="font-script text-5xl leading-[1.35] text-[oklch(0.97_0.012_235)/0.85] md:text-6xl"
